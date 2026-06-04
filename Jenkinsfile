@@ -13,13 +13,7 @@ pipeline {
             }
         }
 
-        stage('Debug Files') {
-            steps {
-                sh 'pwd'
-                sh 'find . -name "*.tf"'
-                sh 'ls -R'
-            }
-        }
+        
 
         stage('AWS Authentication') {
             steps {
