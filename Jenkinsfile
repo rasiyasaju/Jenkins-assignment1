@@ -13,8 +13,6 @@ pipeline {
             }
         }
 
-        
-
         stage('AWS Authentication') {
             steps {
                 withCredentials([
@@ -34,16 +32,26 @@ pipeline {
 
         stage('Terraform Init') {
             steps {
-                dir('terraform-pipeline/terraform') {
-                    sh 'terraform init'
+                withCredentials([
+                    [$class: 'AmazonWebServicesCredentialsBinding',
+                     credentialsId: 'aws-prod']
+                ]) {
+                    dir('terraform-pipeline/terraform') {
+                        sh 'terraform init'
+                    }
                 }
             }
         }
 
         stage('Terraform Plan') {
             steps {
-                dir('terraform-pipeline/terraform') {
-                    sh 'terraform plan -out=tfplan'
+                withCredentials([
+                    [$class: 'AmazonWebServicesCredentialsBinding',
+                     credentialsId: 'aws-prod']
+                ]) {
+                    dir('terraform-pipeline/terraform') {
+                        sh 'terraform plan -out=tfplan'
+                    }
                 }
             }
         }
@@ -56,8 +64,13 @@ pipeline {
 
         stage('Terraform Apply') {
             steps {
-                dir('terraform-pipeline/terraform') {
-                    sh 'terraform apply -auto-approve tfplan'
+                withCredentials([
+                    [$class: 'AmazonWebServicesCredentialsBinding',
+                     credentialsId: 'aws-prod']
+                ]) {
+                    dir('terraform-pipeline/terraform') {
+                        sh 'terraform apply -auto-approve tfplan'
+                    }
                 }
             }
         }
