@@ -13,11 +13,19 @@ pipeline {
             }
         }
 
+        stage('Debug Files') {
+            steps {
+                sh 'pwd'
+                sh 'find . -name "*.tf"'
+                sh 'ls -R'
+            }
+        }
+
         stage('AWS Authentication') {
             steps {
                 withCredentials([
                     [$class: 'AmazonWebServicesCredentialsBinding',
-                    credentialsId: 'aws-prod']
+                     credentialsId: 'aws-prod']
                 ]) {
                     sh 'aws sts get-caller-identity'
                 }
@@ -32,7 +40,7 @@ pipeline {
 
         stage('Terraform Init') {
             steps {
-                dir('terraform') {
+                dir('terraform-pipeline/terraform') {
                     sh 'terraform init'
                 }
             }
@@ -40,7 +48,7 @@ pipeline {
 
         stage('Terraform Plan') {
             steps {
-                dir('terraform') {
+                dir('terraform-pipeline/terraform') {
                     sh 'terraform plan -out=tfplan'
                 }
             }
@@ -54,7 +62,7 @@ pipeline {
 
         stage('Terraform Apply') {
             steps {
-                dir('terraform') {
+                dir('terraform-pipeline/terraform') {
                     sh 'terraform apply -auto-approve tfplan'
                 }
             }
